@@ -1,26 +1,62 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div v-if="!this.isLoadingDone">로딩중...</div>
+  <div v-else>
+    <div v-if="hasError">
+      <h1>{{ errorCode }}</h1>
+    </div>
+    <div v-else>
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import axios from "axios";
+import usePostListStore from "./stores/postList";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+  components: {},
+  setup() {
+    const postListStore = usePostListStore();
+
+    return {
+      postListStore,
+    };
+  },
+  mounted() {
+    this.getAllPost();
+  },
+  data() {
+    return {
+      isLoadingDone: false,
+      hasError: false,
+      errorCode: "",
+    };
+  },
+  methods: {
+    getAllPost() {
+      axios
+        .get("https://jsonplaceholder.typicode.com/todos")
+        .then((response) => {
+          const posts = response.data;
+
+          this.postListStore.postList = posts;
+
+          this.isLoadingDone = true;
+        })
+        .catch(function (error) {
+          this.isLoadingDone = true;
+          this.errorCode = error;
+          this.hasError = true;
+        });
+    },
+  },
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  margin: 0px;
 }
 </style>
