@@ -34,7 +34,7 @@
         </option>
       </select>
     </div>
-    <div class="hidden sm:block">
+    <div class="hidden sm:block mx-auto max-w-7xl">
       <div class="border-b border-gray-200">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
           <button
@@ -54,7 +54,7 @@
         </nav>
       </div>
     </div>
-    <div class="flow-root pt-3 px-3">
+    <div class="flow-root pt-3 px-3 mx-auto max-w-7xl">
       <ul v-if="currentIndex == 0" class="-mb-8">
         <li v-for="post in filteredPosts" :key="post.id">
           <div class="relative pb-8">
