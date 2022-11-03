@@ -2,10 +2,10 @@ import { defineStore } from "pinia";
 
 const usePostListStore = defineStore("postList", {
   state: () => ({
-    postList: [],
-    currentSelectedList: [],
-    currentSelectedUser: 0,
-    currentSelectedPost: 0,
+    postList: null,
+    currentSelectedList: null,
+    currentSelectedUser: null,
+    currentSelectedPost: null,
   }),
   actions: {
     newPostList(param) {
