@@ -15,6 +15,7 @@ const usePostListStore = defineStore("postList", {
   getters: {
     getPostList: (state) => state.postList,
   },
+  persist: true,
 });
 
 export default usePostListStore;

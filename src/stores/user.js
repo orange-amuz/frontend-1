@@ -5,6 +5,7 @@ const useUserStore = defineStore("user", {
     userList: null,
     currentSelectedUser: null,
   }),
+  persist: true,
 });
 
 export default useUserStore;

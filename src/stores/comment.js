@@ -5,6 +5,7 @@ const useCommentStore = defineStore("comment", {
     currentPostNum: null,
     comments: null,
   }),
+  persist: true,
 });
 
 export default useCommentStore;
