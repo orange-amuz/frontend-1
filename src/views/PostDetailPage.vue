@@ -103,7 +103,7 @@
           <div>
             <button
               class="mr-10 inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-sm font-medium leading-5 text-gray-700 shadow-sm hover:bg-gray-50"
-              @click="saveComment"
+              @click="createComment"
             >
               저장
             </button>
@@ -112,7 +112,7 @@
       </div>
       <div class="flex items-start space-x-4 pl-10 pr-10 pt-2">
         <div class="min-w-0 flex-1">
-          <form @submit.prevent="saveComment" class="relative">
+          <form @submit.prevent="createComment" class="relative">
             <div
               class="overflow-hidden rounded-lg border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500"
             >
@@ -250,7 +250,7 @@ export default {
         params: { userId: this.filteredPostListStore.currentSelectedUser },
       });
     },
-    saveComment() {
+    createComment() {
       Comment.insert({
         data: {
           postId: this.post.id,
