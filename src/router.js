@@ -18,10 +18,9 @@ export const router = createRouter({
       component: UserListFilteredPage,
     },
     {
-      path: "/post/:userId/:id",
+      path: "/post",
       name: "PostDetailPage",
       component: PostDetailPage,
-      props: true,
     },
   ],
 });

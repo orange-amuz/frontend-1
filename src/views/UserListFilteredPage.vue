@@ -23,7 +23,7 @@
       <select
         id="tabs"
         name="tabs"
-        class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+        class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm sm:px-6 lg:px-8"
       >
         <option
           v-for="(tab, index) in tabs"
@@ -34,7 +34,7 @@
         </option>
       </select>
     </div>
-    <div class="hidden sm:block mx-auto max-w-7xl">
+    <div class="hidden sm:block mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div class="border-b border-gray-200">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
           <button
@@ -54,20 +54,20 @@
         </nav>
       </div>
     </div>
-    <div class="flow-root pt-3 px-3 mx-auto max-w-7xl">
+    <div class="flow-root pt-3 px-3 mx-auto max-w-7xl sm:px-6 lg:px-8">
       <ul v-if="currentIndex == 0" class="-mb-8">
         <li v-for="post in filteredPosts" :key="post.id">
           <div class="relative pb-8">
             <div class="relative flex space-x-3">
               <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                 <div>
-                  <router-link
+                  <button
                     class="font-medium text-gray-900 text-sm"
-                    v-bind:to="`/post/${$route.params.userId}/${post.id}`"
+                    @click="onClickLink(post.id)"
                   >
                     {{ post.id }} -
                     {{ post.title }}
-                  </router-link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -80,13 +80,13 @@
             <div class="relative flex space-x-3">
               <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                 <div>
-                  <router-link
+                  <button
                     class="font-medium text-gray-900 text-sm"
-                    v-bind:to="`/post/${$route.params.userId}/${post.id}`"
+                    @click="onClickLink(post.id)"
                   >
                     {{ post.id }} -
                     {{ post.title }}
-                  </router-link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -99,13 +99,13 @@
             <div class="relative flex space-x-3">
               <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                 <div>
-                  <router-link
+                  <button
                     class="font-medium text-gray-900 text-sm"
-                    v-bind:to="`/post/${$route.params.userId}/${post.id}`"
+                    @click="onClickLink(post.id)"
                   >
                     {{ post.id }} -
                     {{ post.title }}
-                  </router-link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -117,16 +117,13 @@
 </template>
 
 <script>
-import usePostListStore from "@/stores/postList";
-import useUserStore from "@/stores/user";
 import { ClipboardIcon } from "@heroicons/vue/20/solid";
+import useFilteredPostListStore from "@/stores/filteredPostListStore";
 
 export default {
   name: "UserListFilteredPage",
   setup() {
-    const postListStore = usePostListStore();
-    const userStore = useUserStore();
-
+    const filteredPostListStore = useFilteredPostListStore();
     const tabs = [
       { name: "전체 게시글" },
       { name: "완료 게시글" },
@@ -134,15 +131,13 @@ export default {
     ];
 
     return {
-      postListStore,
-      userStore,
       tabs,
+      filteredPostListStore,
     };
   },
   mounted() {
     this.getUser();
-    this.getData();
-    this.filterData();
+    this.filterPost();
     this.setDefault();
   },
   data() {
@@ -151,7 +146,6 @@ export default {
       filteredPosts: [],
       filteredPostComplete: [],
       filteredPostDoing: [],
-      posts: [],
       user: {},
       currentIndex: 0,
       icon: ClipboardIcon,
@@ -159,28 +153,28 @@ export default {
   },
   methods: {
     getUser() {
-      console.log(this.userStore.userList);
-      for (let i = 0; i < this.userStore.userList.length; i++) {
-        if (this.$route.params.userId == this.userStore.userList[i].id) {
-          this.user = this.userStore.userList[i];
-          this.userStore.currentSelectedUser = this.userStore.userList[i];
+      const users = this.$store.state.entities.user.data;
+
+      for (let i = 1; i <= Object.keys(users).length; i++) {
+        if (users[i].id == parseInt(this.$route.params.userId)) {
+          this.user = users[i];
           break;
         }
       }
-      console.log(this.user);
-      console.log(this.user.id);
+
+      this.filteredPostListStore.currentSelectedUser =
+        this.$route.params.userId;
     },
-    getData() {
-      this.posts = this.postListStore.postList;
-    },
-    filterData() {
-      for (let i = 0; i < this.posts.length; i++) {
-        if (this.posts[i].userId == this.$route.params.userId) {
-          this.filteredPosts.push(this.posts[i]);
-          if (this.posts[i].completed) {
-            this.filteredPostComplete.push(this.posts[i]);
+    filterPost() {
+      const posts = this.$store.state.entities.post.data;
+
+      for (let i = 1; i <= Object.keys(posts).length; i++) {
+        if (posts[i].userId == parseInt(this.$route.params.userId)) {
+          this.filteredPosts.push(posts[i]);
+          if (posts[i].completed) {
+            this.filteredPostComplete.push(posts[i]);
           } else {
-            this.filteredPostDoing.push(this.posts[i]);
+            this.filteredPostDoing.push(posts[i]);
           }
         }
       }
@@ -189,17 +183,26 @@ export default {
       this.currentIndex = index;
       switch (index) {
         case 0:
-          this.postListStore.currentSelectedList = this.filteredPosts;
+          this.filteredPostListStore.currentSelectedList = this.filteredPosts;
           break;
         case 1:
-          this.postListStore.currentSelectedList = this.filteredPostComplete;
+          this.filteredPostListStore.currentSelectedList =
+            this.filteredPostComplete;
           break;
         case 2:
-          this.postListStore.currentSelectedList = this.filteredPostDoing;
+          this.filteredPostListStore.currentSelectedList =
+            this.filteredPostDoing;
           break;
         default:
           break;
       }
+    },
+    onClickLink(id) {
+      // this.filteredPostListStore.currentSelectedUser = userId;
+      this.filteredPostListStore.currentSelectedPost = id;
+      this.$router.push({
+        path: "/post",
+      });
     },
     setDefault() {
       this.onClickButton(0);

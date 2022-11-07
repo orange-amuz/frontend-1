@@ -1,10 +1,12 @@
 <template>
   <div class="p-10">
-    <h3 class="mb-3">총 {{ users.length }} 명</h3>
+    <h3 class="mb-3">
+      총 {{ Object.keys($store.state.entities.user.data).length }} 명
+    </h3>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div
         class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
-        v-for="(user, i) in users"
+        v-for="(user, i) in $store.state.entities.user.data"
         v-bind:key="i"
       >
         <div class="min-w-0 flex-1">
@@ -27,38 +29,7 @@
 </template>
 
 <script>
-import usePostListStore from "@/stores/postList";
-import useUserStore from "@/stores/user";
-
 export default {
   name: "UserListPage",
-  components: {},
-  setup() {
-    const postListStore = usePostListStore();
-    const userStore = useUserStore();
-
-    return {
-      postListStore,
-      userStore,
-    };
-  },
-  mounted() {
-    this.getData();
-    this.getUsers();
-  },
-  data() {
-    return {
-      posts: [],
-      users: [],
-    };
-  },
-  methods: {
-    getData() {
-      this.posts = this.postListStore.postList;
-    },
-    getUsers() {
-      this.users = this.userStore.userList;
-    },
-  },
 };
 </script>

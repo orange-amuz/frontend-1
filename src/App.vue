@@ -1,38 +1,45 @@
 <template>
   <div v-if="!this.isLoadingUserDone">유저 로딩중...</div>
   <div v-else>
-    <div v-if="!this.isLoadingPostsDone">게시글 로딩중...</div>
+    <div v-if="!this.isLoadingCommentDone">댓글 로딩중...</div>
     <div v-else>
-      <router-view />
+      <div v-if="!this.isLoadingPostsDone">게시글 로딩중...</div>
+      <div v-else><router-view /></div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import usePostListStore from "./stores/postList";
-import useUserStore from "@/stores/user";
+import User from "@/models/UserModel";
+import Post from "./models/PostModel";
+import Comment from "./models/CommentModel";
+
+import useFilteredPostListStore from "./stores/filteredPostListStore";
 
 export default {
   name: "App",
   components: {},
   setup() {
-    const postListStore = usePostListStore();
-    const userStore = useUserStore();
+    const filteredPostListStore = useFilteredPostListStore();
 
     return {
-      postListStore,
-      userStore,
+      filteredPostListStore,
     };
   },
   mounted() {
+    // this.filteredPostListStore.currentSelectedList = null;
+    // this.filteredPostListStore.currentSelectedPost = null;
+    // this.filteredPostListStore.currentSelectedUser = null;
     this.getAllUser();
+    this.getAllComment();
     this.getAllPost();
   },
   data() {
     return {
-      isLoadingPostsDone: false,
       isLoadingUserDone: false,
+      isLoadingCommentDone: false,
+      isLoadingPostsDone: false,
       hasError: false,
       errorCode: "",
     };
@@ -42,7 +49,10 @@ export default {
       axios
         .get("https://jsonplaceholder.typicode.com/users")
         .then((response) => {
-          this.userStore.userList = response.data;
+          User.create({
+            data: response.data,
+          });
+
           this.isLoadingUserDone = true;
         })
         .catch(function (error) {
@@ -57,7 +67,9 @@ export default {
         .then((response) => {
           const posts = response.data;
 
-          this.postListStore.postList = posts;
+          Post.create({
+            data: posts,
+          });
 
           this.isLoadingPostsDone = true;
         })
@@ -67,25 +79,20 @@ export default {
           this.hasError = true;
         });
     },
-    getUniqueUsers() {
-      const duplicationUsers = [];
+    getAllComment() {
+      axios
+        .get("https://jsonplaceholder.typicode.com/comments")
+        .then((response) => {
+          const comments = response.data;
 
-      for (let i = 0; i < this.posts.length; i++) {
-        duplicationUsers.push(this.posts[i].userId);
-      }
+          Comment.create({ data: comments });
 
-      const uniqueUsers = new Set(duplicationUsers);
-      // console.log(uniqueUsers);
-      // console.log(this.userStore.userList);
-
-      const exitUsers = [];
-      for (let i = 0; i < this.userStore.userList.length; i++) {
-        if (uniqueUsers.has(this.userStore.userList[i].id)) {
-          exitUsers.push(this.userStore.userList[i]);
-        }
-      }
-
-      this.userStore.userList = exitUsers;
+          this.isLoadingCommentDone = true;
+        })
+        .catch((error) => {
+          this.isLoadingCommentDone = true;
+          console.log(error);
+        });
     },
   },
 };
